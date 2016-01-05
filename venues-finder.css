@@ -1,0 +1,12 @@
+/* CSS declarations go here */
+.fat-text {
+    font-weight: bold;
+}
+
+li:nth-child(odd) {
+    background: #fff;
+}
+
+li:nth-child(even) {
+    background: #f2f2f2;
+}
