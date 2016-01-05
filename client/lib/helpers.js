@@ -20,7 +20,7 @@ Template.body.helpers({
     }
 });
 
-Template.query.helpers({
+Template.Query.helpers({
     formatDate: function(date) {
         return moment(date).format("MMM DD HH:mm");
     }

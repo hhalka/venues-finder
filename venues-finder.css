@@ -10,3 +10,9 @@ li:nth-child(odd) {
 li:nth-child(even) {
     background: #f2f2f2;
 }
+
+.mapbox {
+    position: relative !important;
+    height: 500px;
+    width: 100%;
+}

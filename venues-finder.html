@@ -6,13 +6,18 @@
     <div class="container">
         <ul class="list-group">
             {{#each queries}}
-                {{> query}}
+                {{> Query}}
             {{/each}}
         </ul>
+
+        <div class="search-box">
+        </div>
+
+        {{> Map}}
     </div>
 </body>
 
-<template name="query">
+<template name="Query">
     <li class="list-group-item">
         <div class="row">
             <div class="col-xs-1">
@@ -35,4 +40,8 @@
             </div>
         </div>
     </li>
+</template>
+
+<template name="Map">
+    <div id="map" class="mapbox"></div>
 </template>
