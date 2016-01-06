@@ -16,3 +16,12 @@ li:nth-child(even) {
     height: 500px;
     width: 100%;
 }
+
+form {
+    padding-top: 10px;
+}
+
+form input[type="text"] {
+    font-size: 1.5em;
+}
+
