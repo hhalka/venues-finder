@@ -12,3 +12,4 @@ Template.Map.onRendered(function () {
         }
     });
 });
+
