@@ -20,11 +20,20 @@ Template.body.events({
         event.preventDefault();
 
         var query = event.target.query.value;
-        if (Mapbox.loaded() && !!map){
+        if (Mapbox.loaded() && !!map)   {
             var center =  map.getCenter();
             var north_east = map.getBounds()._northEast
-            var radius = getDistanceFromLatLonInKm(center.lat, center.lng, north_east.lat, center.lng);
+            var radius = 1000 * getDistanceFromLatLonInKm(center.lat, center.lng, north_east.lat, center.lng);
             console.log(radius);
+            var params = {
+                ll: center.lat.toString() + ', ' + center.lng.toString(),
+                query:  query,
+                radius: radius
+            };
+            Foursquare.find(params, function(error, result) {
+                console.log(error);
+                console.log(result);
+            });
         }
         event.target.query.value = "";
     }
