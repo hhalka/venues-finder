@@ -17,34 +17,49 @@
         </form>
 
         {{> Map}}
+
+        <ul class="list-group">
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-xs-3">Name</div>
+                    <div class="col-xs-1">City</div>
+                    <div class="col-xs-4">Street Address</div>
+                    <div class="col-xs-2">Latitude</div>
+                    <div class="col-xs-2">Longitude</div>
+                </div>
+            </li>
+            {{#each venues}}
+                {{> Venue}}
+            {{/each}}
+        </ul>
     </div>
 </body>
 
 <template name="Query">
     <li class="list-group-item">
         <div class="row">
-            <div class="col-xs-1">
-                <span class="glyphicon glyphicon-trash"></span>
-            </div>
-            <div class="col-xs-3 fat-text">
-                {{term}}
-            </div>
-            <div class="col-xs-2">
-                {{latitude}}
-            </div>
-            <div class="col-xs-2">
-                {{longitude}}
-            </div>
-            <div class="col-xs-1">
-                {{radius}}
-            </div>
-            <div class="col-xs-3">
-               {{formatDate date}}
-            </div>
+            <div class="col-xs-1"><span class="glyphicon glyphicon-trash"></span></div>
+            <div class="col-xs-3 fat-text">{{term}}</div>
+            <div class="col-xs-2">{{latitude}}</div>
+            <div class="col-xs-2">{{longitude}}</div>
+            <div class="col-xs-1">{{radius}}</div>
+            <div class="col-xs-3">{{formatDate date}}</div>
         </div>
     </li>
 </template>
 
 <template name="Map">
     <div id="map" class="mapbox"></div>
+</template>
+
+<template name="Venue">
+    <li class="list-group-item">
+        <div class="row">
+            <div class="col-xs-3">{{name}}</div>
+            <div class="col-xs-1">{{city}}</div>
+            <div class="col-xs-4">{{address}}</div>
+            <div class="col-xs-2">{{latitude}}</div>
+            <div class="col-xs-2">{{longitude}}</div>
+        </div>
+    </li>
 </template>

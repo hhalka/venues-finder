@@ -1,3 +1,4 @@
+
 function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
     var R = 6371; // Radius of the earth in km
     var dLat = deg2rad(lat2-lat1);  // deg2rad below
@@ -12,7 +13,7 @@ function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
 }
 
 function deg2rad(deg) {
-    return deg * (Math.PI/180)
+    return deg * (Math.PI/180);
 }
 
 Template.body.events({
@@ -20,19 +21,30 @@ Template.body.events({
         event.preventDefault();
 
         var query = event.target.query.value;
-        if (Mapbox.loaded() && !!map)   {
+        if (Mapbox.loaded() && !!map) {
             var center =  map.getCenter();
             var north_east = map.getBounds()._northEast
             var radius = 1000 * getDistanceFromLatLonInKm(center.lat, center.lng, north_east.lat, center.lng);
-            console.log(radius);
             var params = {
                 ll: center.lat.toString() + ', ' + center.lng.toString(),
                 query:  query,
                 radius: radius
             };
             Foursquare.find(params, function(error, result) {
-                console.log(error);
-                console.log(result);
+                venues.splice(0, venues.length);
+                if(!error) {
+                    queryResult = result.response.venues;
+                    queryResult.forEach(function(venue, index) {
+                        venues.push({
+                            name : venue.name,
+                            city : venue.location.city,
+                            address : venue.location.address,
+                            latitude : venue.location.lat,
+                            longitude : venue.location.lng
+                        });
+                    });
+                }
+                console.log(venues);
             });
         }
         event.target.query.value = "";
