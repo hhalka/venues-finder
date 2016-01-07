@@ -25,3 +25,20 @@ form input[type="text"] {
     font-size: 1.5em;
 }
 
+div.venues-control-panel{
+    padding-top: 20px;
+    padding-bottom: 5px;
+}
+
+div.venues-count{
+    font-size: 2em;    
+}
+
+button{
+    position:relative;
+    float: right;
+}
+
+.venue-list-header{
+    background: #d3d3d3 !important;
+}

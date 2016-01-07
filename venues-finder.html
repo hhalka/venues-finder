@@ -18,8 +18,15 @@
 
         {{> Map}}
 
+        <div class="row venues-control-panel">
+            <div class="col-xs-6 venues-count">{{venues.length}} {{# if _.isEqual venues.length 1}}venue{{else}}venues{{/if}}</div>
+            <div class="col-xs-6 export-data">
+                <button class="btn btn-default">Export CSV</button>
+            </div>
+        </div>
+
         <ul class="list-group">
-            <li class="list-group-item">
+            <li class="list-group-item venue-list-header">
                 <div class="row">
                     <div class="col-xs-3">Name</div>
                     <div class="col-xs-1">City</div>

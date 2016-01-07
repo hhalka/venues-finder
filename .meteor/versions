@@ -1,5 +1,6 @@
 autopublish@1.0.4
 autoupdate@1.2.4
+axw:json2csv@0.1.0
 babel-compiler@5.8.24_1
 babel-runtime@0.1.4
 base64@1.0.4
@@ -50,6 +51,7 @@ observe-sequence@1.0.7
 oleh:foursquare@0.0.3
 ordered-dict@1.0.4
 pauloborges:mapbox@2.2.3
+pfafman:filesaver@0.2.2
 promise@0.5.1
 random@1.0.5
 reactive-dict@1.1.3

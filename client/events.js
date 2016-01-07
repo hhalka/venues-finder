@@ -48,5 +48,11 @@ Template.body.events({
             });
         }
         event.target.query.value = "";
+    },
+
+    "click .export-data > .btn" : function() {
+        csv = json2csv(venues, true, true);
+        var blob = new Blob([csv], {type: "text/plain;charset=utf-8;"});
+        saveAs(blob, "venues.csv");    
     }
 });
