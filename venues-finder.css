@@ -1,4 +1,8 @@
 /* CSS declarations go here */
+.glyphicon {
+    cursor: pointer;
+}
+
 .fat-text {
     font-weight: bold;
 }
@@ -25,20 +29,28 @@ form input[type="text"] {
     font-size: 1.5em;
 }
 
-div.venues-control-panel{
+.venues-control-panel {
     padding-top: 20px;
     padding-bottom: 5px;
 }
 
-div.venues-count{
+.venues-count {
     font-size: 2em;    
 }
 
-button{
-    position:relative;
-    float: right;
+.export-data {
+    text-align: right;
 }
 
-.venue-list-header{
+.venue-list-header {
     background: #d3d3d3 !important;
 }
+
+.query-list > .list-group-item {
+    cursor: pointer;
+}
+
+.query-list > .list-group-item:hover {
+    color: #d3d3d3;
+}
+

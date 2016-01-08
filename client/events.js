@@ -1,4 +1,3 @@
-
 function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
     var R = 6371; // Radius of the earth in km
     var dLat = deg2rad(lat2-lat1);  // deg2rad below
@@ -16,36 +15,49 @@ function deg2rad(deg) {
     return deg * (Math.PI/180);
 }
 
+function find_venues(query) {
+    var params = {
+        ll: query.latitude.toString() + ', ' + query.longitude.toString(),
+        query:  query.term,
+        radius: 1000 * query.radius
+    };
+    Foursquare.find(params, function(error, result) {
+        venues.splice(0, venues.length);
+        if(!error) {
+            queryResult = result.response.venues;
+            queryResult.forEach(function(venue, index) {
+                venues.push({
+                    name : venue.name,
+                    city : venue.location.city,
+                    address : venue.location.address,
+                    latitude : venue.location.lat,
+                    longitude : venue.location.lng
+                });
+            });
+        }
+    });
+}
+
 Template.body.events({
     "submit .new-query": function (event) {
         event.preventDefault();
 
-        var query = event.target.query.value;
+        var term = event.target.query.value;
         if (Mapbox.loaded() && !!map) {
             var center =  map.getCenter();
             var north_east = map.getBounds()._northEast
-            var radius = 1000 * getDistanceFromLatLonInKm(center.lat, center.lng, north_east.lat, center.lng);
-            var params = {
-                ll: center.lat.toString() + ', ' + center.lng.toString(),
-                query:  query,
-                radius: radius
+            var radius = getDistanceFromLatLonInKm(center.lat, center.lng, north_east.lat, center.lng).toFixed(2);
+            
+            var query = {
+                term: term,
+                latitude: center.lat,
+                longitude: center.lng,
+                radius: radius,
+                createdAt: new Date()
             };
-            Foursquare.find(params, function(error, result) {
-                venues.splice(0, venues.length);
-                if(!error) {
-                    queryResult = result.response.venues;
-                    queryResult.forEach(function(venue, index) {
-                        venues.push({
-                            name : venue.name,
-                            city : venue.location.city,
-                            address : venue.location.address,
-                            latitude : venue.location.lat,
-                            longitude : venue.location.lng
-                        });
-                    });
-                }
-                console.log(venues);
-            });
+            Queries.insert(query);
+
+            find_venues(query);
         }
         event.target.query.value = "";
     },
@@ -54,5 +66,13 @@ Template.body.events({
         csv = json2csv(venues, true, true);
         var blob = new Blob([csv], {type: "text/plain;charset=utf-8;"});
         saveAs(blob, "venues.csv");    
+    },
+
+    "click .delete": function() {
+        Queries.remove(this._id);
+    },
+
+    "click .query-list > .list-group-item": function(event) {
+        find_venues(this);
     }
 });
