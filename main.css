@@ -54,3 +54,8 @@ form input[type="text"] {
     color: #d3d3d3;
 }
 
+.selected {
+    background-color: #b3b3ff !important;
+}
+
+

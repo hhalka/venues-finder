@@ -19,7 +19,7 @@
         {{> Map}}
 
         <div class="row venues-control-panel">
-            <div class="col-xs-6 venues-count">{{venues.length}} {{# if _.isEqual venues.length 1}}venue{{else}}venues{{/if}}</div>
+            <div class="col-xs-6 venues-count">{{venues.length}} {{#if _.isEqual venues.length 1}}venue{{else}}venues{{/if}}</div>
             <div class="col-xs-6 export-data">
                 <button class="btn btn-default">Export CSV</button>
             </div>
@@ -43,7 +43,7 @@
 </body>
 
 <template name="Query">
-    <li class="list-group-item">
+    <li class="list-group-item {{#if selected}}selected{{/if}}">
         <div class="row">
             <div class="col-xs-1"><span class="glyphicon glyphicon-trash delete"></span></div>
             <div class="col-xs-3 fat-text">{{term}}</div>

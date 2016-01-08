@@ -1,3 +1,5 @@
+venues = new ReactiveArray();
+
 function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
     var R = 6371; // Radius of the earth in km
     var dLat = deg2rad(lat2-lat1);  // deg2rad below
@@ -21,6 +23,7 @@ function find_venues(query) {
         query:  query.term,
         radius: 1000 * query.radius
     };
+
     Foursquare.find(params, function(error, result) {
         venues.splice(0, venues.length);
         if(!error) {
@@ -30,32 +33,68 @@ function find_venues(query) {
                     name : venue.name,
                     city : venue.location.city,
                     address : venue.location.address,
-                    latitude : venue.location.lat,
-                    longitude : venue.location.lng
+                    latitude : venue.location.lat.toFixed(8),
+                    longitude : venue.location.lng.toFixed(8)
                 });
             });
         }
     });
 }
 
+Template.Map.onRendered(function () {
+    Mapbox.load({
+        plugins: ['markercluster', 'heat']
+    });
+
+    this.autorun(function () {
+        if (Mapbox.loaded()) {
+            L.mapbox.accessToken = 'pk.eyJ1IjoiaGFsa2FoIiwiYSI6ImNpajA1M2l4ODAwMnp2Ym0waThudzV0b2EifQ.VcaWhErFHuoh6IoyQ84ZtQ';
+            map = L.mapbox.map('map', 'mapbox.streets');
+        }
+    });
+
+    this.autorun(function() {
+        if (Mapbox.loaded() && !!map) {
+            selected = Queries.findOne({selected: true});
+            if (selected !== undefined) {
+                find_venues(selected);
+                map.setView([selected.latitude, selected.longitude], selected.zoom);
+            }
+        }
+    });
+});
+
+Template.body.helpers({
+    queries: function(){
+        return Queries.find({}, {sort: {createdAt: -1}});
+    },
+    venues: function() {
+        return venues.list();
+    }
+});
+
 Template.body.events({
     "submit .new-query": function (event) {
         event.preventDefault();
 
         var term = event.target.query.value;
-        if (Mapbox.loaded() && !!map) {
+        if (Mapbox.loaded()) {
             var center =  map.getCenter();
             var north_east = map.getBounds()._northEast
             var radius = getDistanceFromLatLonInKm(center.lat, center.lng, north_east.lat, center.lng).toFixed(2);
             
             var query = {
                 term: term,
-                latitude: center.lat,
-                longitude: center.lng,
+                latitude: center.lat.toFixed(8),
+                longitude: center.lng.toFixed(8),
                 radius: radius,
+                zoom: map.getZoom(),
+                selected: true,
                 createdAt: new Date()
             };
-            Queries.insert(query);
+
+            Meteor.call("clearSelected");
+            Meteor.call("appendQuery", query);
 
             find_venues(query);
         }
@@ -69,10 +108,14 @@ Template.body.events({
     },
 
     "click .delete": function() {
-        Queries.remove(this._id);
+        venues.splice(0, venues.length);
+        Meteor.call("deleteQuery", this._id);
     },
 
     "click .query-list > .list-group-item": function(event) {
+        Meteor.call("clearSelected");
+        Meteor.call("setSelected", this._id);
         find_venues(this);
     }
 });
+
