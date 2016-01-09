@@ -1,5 +1,28 @@
 venues = new ReactiveArray();
 
+Tracker.autorun(function() {
+    venues.depend();
+    if (Mapbox.loaded() && typeof view !== "undefined") {
+        var points =_.map(venues, function(venue) {
+             return {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [venue.longitude.toString(), venue.latitude.toString()]
+                },
+                "properties": {
+                    "title": venue.name,
+                    "description": venue.address,
+                    "marker-color": "#fc4353",
+                    "marker-symbol": "marker",
+                    "marker-size": "large"
+                }
+            };
+        });
+        view.featureLayer.setGeoJSON(points);
+    }
+});
+
 function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
     var R = 6371; // Radius of the earth in km
     var dLat = deg2rad(lat2-lat1);  // deg2rad below
@@ -19,46 +42,49 @@ function deg2rad(deg) {
 
 function find_venues(query) {
     var params = {
-        ll: query.latitude.toString() + ', ' + query.longitude.toString(),
+        ll: query.latitude.toString() + ", " + query.longitude.toString(),
         query:  query.term,
-        radius: 1000 * query.radius
+        radius: 1000 * query.radius,
+        // intent: 'browse',
+        // sw: query.south_west.lat.toString() + ", " + query.south_west.lng.toString(),
+        // ne: query.north_east.lat.toString() + ", " + query.north_east.lng.toString()
     };
-
     Foursquare.find(params, function(error, result) {
-        venues.splice(0, venues.length);
+        venues.clear();
         if(!error) {
-            queryResult = result.response.venues;
-            queryResult.forEach(function(venue, index) {
-                venues.push({
+            Array.prototype.push.apply(venues, _.map(result.response.venues, function(venue) {
+                return {
                     name : venue.name,
                     city : venue.location.city,
                     address : venue.location.address,
                     latitude : venue.location.lat.toFixed(8),
                     longitude : venue.location.lng.toFixed(8)
-                });
-            });
+                }
+            }));
         }
     });
 }
 
 Template.Map.onRendered(function () {
     Mapbox.load({
-        plugins: ['markercluster', 'heat']
+        plugins: ["markercluster", "heat"]
     });
 
     this.autorun(function () {
         if (Mapbox.loaded()) {
-            L.mapbox.accessToken = 'pk.eyJ1IjoiaGFsa2FoIiwiYSI6ImNpajA1M2l4ODAwMnp2Ym0waThudzV0b2EifQ.VcaWhErFHuoh6IoyQ84ZtQ';
-            map = L.mapbox.map('map', 'mapbox.streets');
+            L.mapbox.accessToken = "pk.eyJ1IjoiaGFsa2FoIiwiYSI6ImNpajA1M2l4ODAwMnp2Ym0waThudzV0b2EifQ.VcaWhErFHuoh6IoyQ84ZtQ";
+            map = L.mapbox.map("map", "mapbox.streets");
         }
     });
 
     this.autorun(function() {
-        if (Mapbox.loaded() && !!map) {
+        if (Mapbox.loaded() && typeof map !== "undefined") {
             selected = Queries.findOne({selected: true});
             if (selected !== undefined) {
                 find_venues(selected);
-                map.setView([selected.latitude, selected.longitude], selected.zoom);
+                view = map.setView([selected.latitude, selected.longitude], selected.zoom);
+            } else {
+                venues.clear();
             }
         }
     });
@@ -78,10 +104,10 @@ Template.body.events({
         event.preventDefault();
 
         var term = event.target.query.value;
-        if (Mapbox.loaded()) {
+        if (Mapbox.loaded() && typeof map !== "undefined") {
             var center =  map.getCenter();
-            var north_east = map.getBounds()._northEast
-            var radius = getDistanceFromLatLonInKm(center.lat, center.lng, north_east.lat, center.lng).toFixed(2);
+            var bounds = map.getBounds();
+            var radius = getDistanceFromLatLonInKm(center.lat, center.lng, bounds._northEast.lat, center.lng).toFixed(2);
             
             var query = {
                 term: term,
@@ -90,7 +116,9 @@ Template.body.events({
                 radius: radius,
                 zoom: map.getZoom(),
                 selected: true,
-                createdAt: new Date()
+                createdAt: new Date(),
+                // north_east: bounds._northEast,
+                // south_west: bounds._southWest
             };
 
             Meteor.call("clearSelected");
@@ -108,14 +136,12 @@ Template.body.events({
     },
 
     "click .delete": function() {
-        venues.splice(0, venues.length);
         Meteor.call("deleteQuery", this._id);
     },
 
     "click .query-list > .list-group-item": function(event) {
         Meteor.call("clearSelected");
         Meteor.call("setSelected", this._id);
-        find_venues(this);
     }
 });
 
