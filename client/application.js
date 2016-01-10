@@ -1,3 +1,5 @@
+Meteor.subscribe("queries");
+
 venues = new ReactiveArray();
 
 Tracker.autorun(function() {
@@ -65,6 +67,24 @@ function find_venues(query) {
     });
 }
 
+Template.LoginMenu.events({
+    "click [data-action=login]": function(event) {
+        event.preventDefault();
+        Meteor.loginWithGoogle({requestPermissions: ["profile"]});
+    },
+
+    "click [data-action=logout]": function(event) {
+        event.preventDefault();
+        Meteor.logout();
+    }
+});
+
+Template.LoginMenu.helpers({
+    isLoginServicesConfigured() {
+        return Accounts.loginServicesConfigured();
+    }
+});
+
 Template.Map.onRendered(function () {
     Mapbox.load({
         plugins: ["markercluster", "heat"]
@@ -117,6 +137,7 @@ Template.body.events({
                 zoom: map.getZoom(),
                 selected: true,
                 createdAt: new Date(),
+                owner: Meteor.userId(),
                 // north_east: bounds._northEast,
                 // south_west: bounds._southWest
             };
@@ -136,12 +157,12 @@ Template.body.events({
     },
 
     "click .delete": function() {
-        Meteor.call("deleteQuery", this._id);
+        Meteor.call("deleteQuery", this);
     },
 
     "click .query-list > .list-group-item": function(event) {
         Meteor.call("clearSelected");
-        Meteor.call("setSelected", this._id);
+        Meteor.call("setSelected", this);
     }
 });
 
